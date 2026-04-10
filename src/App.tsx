@@ -10,6 +10,7 @@ import OrderSuccessPage from './pages/OrderSuccessPage';
 import ViabilityPage from './pages/ViabilityPage';
 import AdminPage from './pages/AdminPage';
 import AuthPage from './pages/AuthPage';
+import ProfilePage from './pages/ProfilePage';
 import { supabase } from './lib/supabase';
 import { CartItem, Page } from './types';
 
@@ -157,7 +158,7 @@ export default function App() {
     }
   };
 
-  const showNav = page !== 'order-success' && page !== 'admin' && page !== 'auth';
+  const showNav = page !== 'order-success' && page !== 'admin' && page !== 'auth' && page !== 'profile';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -234,6 +235,12 @@ export default function App() {
 
       {page === 'admin' && (
         <AdminPage
+          onNavigate={handleNavigate}
+        />
+      )}
+
+      {page === 'profile' && (
+        <ProfilePage
           onNavigate={handleNavigate}
         />
       )}

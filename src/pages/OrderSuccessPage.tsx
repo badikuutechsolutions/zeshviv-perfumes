@@ -25,7 +25,7 @@ export default function OrderSuccessPage({ orderId, onNavigate }: OrderSuccessPa
         {/* Steps */}
         <div className="text-left space-y-3 mb-6">
           {[
-            { icon: '📱', title: 'M-Pesa STK Push Sent', desc: 'Check your phone and enter your M-Pesa PIN to complete payment.' },
+            { icon: '💚', title: 'Pochi Payment Sent', desc: 'You\'ve sent KES via Pochi la Biashara. We\'re confirming your payment now.' },
             { icon: '📦', title: 'Order Being Prepared', desc: 'We\'re picking and packing your perfume(s) right now.' },
             { icon: '🛵', title: 'Out for Delivery', desc: 'Our rider will be on the way to you shortly.' },
             { icon: '📞', title: 'Rider Will Call You', desc: 'Expect a call from our delivery rider for directions.' },

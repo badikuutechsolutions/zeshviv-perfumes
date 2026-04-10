@@ -223,15 +223,44 @@ export default function CheckoutPage({ cart, onPlaceOrder, onNavigate, isLoading
 
               {form.paymentMethod === 'mpesa' && (
                 <div className="bg-green-50 border border-green-100 rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center text-white font-black text-sm">M</div>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center">
+                      <span className="text-white font-black text-sm">M</span>
+                    </div>
                     <div>
-                      <div className="font-bold text-green-800 text-sm">Lipa Na M-Pesa</div>
-                      <div className="text-xs text-green-600">Paybill: 123456 | Account: Your Order ID</div>
+                      <div className="font-bold text-green-800 text-sm">Pochi la Biashara</div>
+                      <div className="text-xs text-green-600">Send to: <strong>0712 345 678</strong></div>
                     </div>
                   </div>
+
+                  <div className="bg-white rounded-lg p-3 border border-green-200 mb-3">
+                    <div className="text-xs text-gray-600 font-semibold mb-2">How to pay:</div>
+                    <ol className="text-xs text-gray-700 space-y-1.5">
+                      <li className="flex items-start gap-2">
+                        <span className="w-5 h-5 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">1</span>
+                        <span>Go to <strong>M-Pesa</strong> on your phone</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="w-5 h-5 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">2</span>
+                        <span>Select <strong>Pochi la Biashara</strong></span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="w-5 h-5 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">3</span>
+                        <span>Enter number: <strong>0712 345 678</strong></span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="w-5 h-5 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">4</span>
+                        <span>Enter amount: <strong>KES {total.toLocaleString()}</strong></span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="w-5 h-5 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">5</span>
+                        <span>Enter your M-Pesa PIN and confirm</span>
+                      </li>
+                    </ol>
+                  </div>
+
                   <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">M-Pesa Number *</label>
+                    <label className="block text-xs font-semibold text-gray-600 mb-1">Your M-Pesa Number *</label>
                     <input
                       type="tel"
                       placeholder="e.g. 0712 345 678"
@@ -240,7 +269,7 @@ export default function CheckoutPage({ cart, onPlaceOrder, onNavigate, isLoading
                       className={inputClass('mpesaNumber')}
                     />
                     {errors.mpesaNumber && <p className="text-red-500 text-xs mt-1">{errors.mpesaNumber}</p>}
-                    <p className="text-xs text-gray-500 mt-1.5">📲 You'll receive an STK push to complete payment after placing your order.</p>
+                    <p className="text-xs text-gray-500 mt-1.5">📲 We'll verify your payment using this number</p>
                   </div>
                 </div>
               )}

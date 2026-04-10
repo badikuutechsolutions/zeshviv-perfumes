@@ -92,6 +92,12 @@ export default function Navbar({ cart, onNavigate, currentPage }: NavbarProps) {
                     <div className="text-xs text-gray-500 truncate">{user.email}</div>
                   </div>
                   <button
+                    onClick={() => onNavigate('profile')}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    👤 My Account
+                  </button>
+                  <button
                     onClick={async () => { await signOut(); }}
                     className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                   >
@@ -192,6 +198,7 @@ export default function Navbar({ cart, onNavigate, currentPage }: NavbarProps) {
                   <div className="text-xs text-gray-500 mb-1">Signed in as:</div>
                   <div className="text-sm font-medium text-gray-800 truncate">{user?.email}</div>
                 </div>
+                <button onClick={() => { onNavigate('profile'); setMenuOpen(false); }} className="block w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 font-medium">👤 My Account</button>
                 <button onClick={async () => { await signOut(); setMenuOpen(false); }} className="block w-full text-left px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 font-medium">🚪 Sign Out</button>
               </>
             ) : (
