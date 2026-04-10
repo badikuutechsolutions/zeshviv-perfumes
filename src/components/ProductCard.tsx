@@ -30,12 +30,22 @@ export default function ProductCard({ product, onAddToCart, onViewProduct, cartC
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group flex flex-col">
       {/* Product image area */}
       <div
-        className="relative cursor-pointer bg-gradient-to-br from-amber-50 to-orange-50 h-52 flex items-center justify-center overflow-hidden"
+        className="relative cursor-pointer overflow-hidden h-52 bg-gradient-to-br from-amber-50 to-orange-50"
         onClick={() => onViewProduct(product.id)}
       >
-        <div className="text-7xl transform group-hover:scale-110 transition-transform duration-300">
-          {product.emoji}
-        </div>
+        {product.imageUrl ? (
+          <img
+            src={product.imageUrl}
+            alt={product.name}
+            className="w-full h-full object-cover product-image-zoom"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="text-7xl transform group-hover:scale-110 transition-transform duration-300">
+              {product.emoji}
+            </div>
+          </div>
+        )}
 
         {/* Badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">

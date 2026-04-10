@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { Product } from '../types';
 import SettingsPage from './SettingsPage';
@@ -107,6 +107,13 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
   const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
 
+  // Image upload state
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [currentImageUrl, setCurrentImageUrl] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // Orders state
   const [orders, setOrders] = useState<OrderRecord[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
@@ -118,6 +125,75 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
     setToast({ type, message });
     setTimeout(() => setToast(null), 3000);
   }, []);
+
+  // Image upload handlers
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      showToast('error', 'Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('error', 'Image must be less than 5MB');
+      return;
+    }
+
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const handleImageUpload = async (productId: number): Promise<string | null> => {
+    if (!imageFile) return currentImageUrl;
+
+    setImageUploading(true);
+    try {
+      // Create unique filename
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${productId}-${Date.now()}.${fileExt}`;
+
+      // Delete old image if exists
+      if (currentImageUrl) {
+        const oldPath = currentImageUrl.split('/').pop();
+        if (oldPath) {
+          await supabase.storage.from('product-images').remove([oldPath]);
+        }
+      }
+
+      // Upload new image
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(fileName, imageFile, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(fileName);
+
+      return data.publicUrl;
+    } catch (error: any) {
+      console.error('Image upload error:', error);
+      showToast('error', error.message || 'Failed to upload image');
+      return null;
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
+  const resetImageState = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setCurrentImageUrl('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   // Password check
   const handleLogin = () => {
@@ -224,6 +300,9 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
       notesBase: product.notes.base.length ? product.notes.base : [''],
       emoji: product.emoji,
     });
+    setCurrentImageUrl(product.imageUrl || '');
+    setImagePreview(null);
+    setImageFile(null);
     setEditingId(product.id);
     setModalMode('edit');
   };
@@ -236,39 +315,81 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
     }
 
     setSaving(true);
-    const payload = {
-      name: form.name.trim(),
-      brand: form.brand.trim(),
-      price: form.price,
-      original_price: form.originalPrice || null,
-      category: form.category,
-      size: form.size.trim(),
-      rating: form.rating,
-      reviews_count: form.reviews,
-      in_stock: form.inStock,
-      badge: form.badge,
-      description: form.description.trim(),
-      notes_top: form.notesTop.filter(n => n.trim()),
-      notes_middle: form.notesMiddle.filter(n => n.trim()),
-      notes_base: form.notesBase.filter(n => n.trim()),
-      emoji: form.emoji,
-      image_url: null,
-    };
+    let imageUrl = currentImageUrl;
 
     try {
-      let error;
+      // For new products, insert first to get ID
+      let productId = editingId;
+
       if (modalMode === 'add') {
-        const { error: e } = await supabase.from('products').insert(payload);
-        error = e;
+        const { data, error } = await supabase
+          .from('products')
+          .insert({
+            name: form.name.trim(),
+            brand: form.brand.trim(),
+            price: form.price,
+            original_price: form.originalPrice || null,
+            category: form.category,
+            size: form.size.trim(),
+            rating: form.rating,
+            reviews_count: form.reviews,
+            in_stock: form.inStock,
+            badge: form.badge,
+            description: form.description.trim(),
+            notes_top: form.notesTop.filter(n => n.trim()),
+            notes_middle: form.notesMiddle.filter(n => n.trim()),
+            notes_base: form.notesBase.filter(n => n.trim()),
+            emoji: form.emoji,
+            image_url: null,
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        productId = data?.id;
       } else {
-        const { error: e } = await supabase.from('products').update(payload).eq('id', editingId);
-        error = e;
+        // Upload image first if editing
+        if (imageFile && productId) {
+          const uploadedUrl = await handleImageUpload(productId);
+          if (uploadedUrl) imageUrl = uploadedUrl;
+        }
+
+        const { error } = await supabase
+          .from('products')
+          .update({
+            name: form.name.trim(),
+            brand: form.brand.trim(),
+            price: form.price,
+            original_price: form.originalPrice || null,
+            category: form.category,
+            size: form.size.trim(),
+            rating: form.rating,
+            reviews_count: form.reviews,
+            in_stock: form.inStock,
+            badge: form.badge,
+            description: form.description.trim(),
+            notes_top: form.notesTop.filter(n => n.trim()),
+            notes_middle: form.notesMiddle.filter(n => n.trim()),
+            notes_base: form.notesBase.filter(n => n.trim()),
+            emoji: form.emoji,
+            image_url: imageUrl,
+          })
+          .eq('id', productId);
+
+        if (error) throw error;
       }
 
-      if (error) throw error;
+      // For new products, upload image after getting ID
+      if (modalMode === 'add' && imageFile && productId) {
+        const uploadedUrl = await handleImageUpload(productId);
+        if (uploadedUrl) {
+          await supabase.from('products').update({ image_url: uploadedUrl }).eq('id', productId);
+        }
+      }
 
       showToast('success', modalMode === 'add' ? 'Product added!' : 'Product updated!');
       setModalMode('list');
+      resetImageState();
       await fetchProducts();
     } catch (err: any) {
       console.error('Save error:', err);
@@ -849,6 +970,65 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
                       placeholder="🔶"
                       className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-amber-400"
                     />
+                  </div>
+                </div>
+
+                {/* Product Image Upload */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-2">Product Image</label>
+                  <div className="flex items-start gap-4">
+                    {/* Preview */}
+                    <div className="relative">
+                      {imagePreview || currentImageUrl ? (
+                        <div className="w-32 h-32 rounded-xl border-2 border-amber-200 overflow-hidden image-preview bg-gray-50 flex items-center justify-center">
+                          <img
+                            src={imagePreview || currentImageUrl}
+                            alt="Product"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-32 h-32 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center">
+                          <div className="text-center">
+                            <div className="text-3xl text-gray-300">📷</div>
+                            <div className="text-[10px] text-gray-400 mt-1">No image</div>
+                          </div>
+                        </div>
+                      )}
+                      {imageUploading && (
+                        <div className="absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center">
+                          <div className="animate-spin text-white text-lg">⏳</div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Upload controls */}
+                    <div className="flex-1">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageSelect}
+                        className="hidden"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium px-4 py-2 rounded-lg transition-colors mb-2"
+                      >
+                        📁 Choose Image
+                      </button>
+                      <p className="text-[10px] text-gray-400">PNG, JPG, WebP up to 5MB</p>
+                      {(imagePreview || currentImageUrl) && (
+                        <button
+                          type="button"
+                          onClick={resetImageState}
+                          className="text-[10px] text-red-500 hover:text-red-700 mt-1 block"
+                        >
+                          ✕ Remove image
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
 
