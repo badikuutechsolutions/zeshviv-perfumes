@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
+import { uploadImage } from '../services/cloudinary';
 import { Product } from '../types';
 import SettingsPage from './SettingsPage';
 import AdminManagementPage from './AdminManagementPage';
@@ -152,31 +153,9 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
 
     setImageUploading(true);
     try {
-      // Create unique filename
-      const fileExt = imageFile.name.split('.').pop();
-      const fileName = `${productId}-${Date.now()}.${fileExt}`;
-
-      // Delete old image if exists
-      if (currentImageUrl) {
-        const oldPath = currentImageUrl.split('/').pop();
-        if (oldPath) {
-          await supabase.storage.from('product-images').remove([oldPath]);
-        }
-      }
-
-      // Upload new image
-      const { error: uploadError } = await supabase.storage
-        .from('product-images')
-        .upload(fileName, imageFile, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data } = supabase.storage
-        .from('product-images')
-        .getPublicUrl(fileName);
-
-      return data.publicUrl;
+      // Upload to Cloudinary
+      const result = await uploadImage(imageFile);
+      return result.secure_url;
     } catch (error: any) {
       console.error('Image upload error:', error);
       showToast('error', error.message || 'Failed to upload image');
