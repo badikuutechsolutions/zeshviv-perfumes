@@ -98,7 +98,7 @@ export default function ShopPage({ cart, onAddToCart, onNavigate }: ShopPageProp
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="flex gap-6">
           {/* Sidebar filters - desktop */}
-          <aside className="hidden lg:block w-56 flex-shrink-0">
+          <aside className="hidden lg:block w-56 shrink-0">
             <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm sticky top-36">
               <h3 className="font-bold text-gray-900 mb-3">🎯 Filters</h3>
 

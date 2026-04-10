@@ -10,6 +10,7 @@ import OrderSuccessPage from './pages/OrderSuccessPage';
 import ViabilityPage from './pages/ViabilityPage';
 import AdminPage from './pages/AdminPage';
 import AuthPage from './pages/AuthPage';
+import AdminProfilePage from './pages/AdminProfilePage';
 import ProfilePage from './pages/ProfilePage';
 import { supabase } from './lib/supabase';
 import { CartItem, Page } from './types';
@@ -158,7 +159,7 @@ export default function App() {
     }
   };
 
-  const showNav = page !== 'order-success' && page !== 'admin' && page !== 'auth' && page !== 'profile';
+  const showNav = page !== 'order-success' && page !== 'admin' && page !== 'auth' && page !== 'profile' && page !== 'admin-profile';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -236,6 +237,17 @@ export default function App() {
       {page === 'admin' && (
         <AdminPage
           onNavigate={handleNavigate}
+        />
+      )}
+
+      {page === 'admin-profile' && (
+        <AdminProfilePage
+          onNavigate={handleNavigate}
+          showToast={(type, message) => {
+            // Simple alert for admin profile
+            if (type === 'error') alert(message);
+            else alert('✅ ' + message);
+          }}
         />
       )}
 

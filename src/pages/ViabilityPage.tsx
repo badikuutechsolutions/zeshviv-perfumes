@@ -6,7 +6,7 @@ export default function ViabilityPage({ onNavigate }: ViabilityPageProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-gray-900 via-amber-950 to-gray-900 text-white py-10">
+      <div className="bg-linear-to-r from-gray-900 via-amber-950 to-gray-900 text-white py-10">
         <div className="max-w-4xl mx-auto px-4">
           <div className="flex items-center gap-2 text-sm text-amber-300 mb-3">
             <button onClick={() => onNavigate('home')} className="hover:text-white">Home</button>
@@ -263,7 +263,7 @@ export default function ViabilityPage({ onNavigate }: ViabilityPageProps) {
               },
             ].map(item => (
               <div key={item.challenge} className="flex gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
-                <div className="text-3xl flex-shrink-0">{item.icon}</div>
+                <div className="text-3xl shrink-0">{item.icon}</div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <h4 className="font-bold text-gray-800 text-sm">{item.challenge}</h4>
@@ -398,7 +398,7 @@ export default function ViabilityPage({ onNavigate }: ViabilityPageProps) {
                   <ul className="space-y-1.5">
                     {phase.tasks.map((task, i) => (
                       <li key={i} className="text-xs text-gray-700 flex items-start gap-2">
-                        <span className="text-green-500 mt-0.5 font-bold flex-shrink-0">✓</span>
+                        <span className="text-green-500 mt-0.5 font-bold shrink-0">✓</span>
                         <span>{task}</span>
                       </li>
                     ))}
@@ -410,7 +410,7 @@ export default function ViabilityPage({ onNavigate }: ViabilityPageProps) {
         </section>
 
         {/* Final verdict */}
-        <section className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl p-6 text-white">
+        <section className="bg-linear-to-r from-amber-500 to-orange-500 rounded-2xl p-6 text-white">
           <h2 className="text-xl font-black mb-4">🏆 Final Verdict</h2>
           <div className="grid md:grid-cols-2 gap-4">
             <div>

@@ -43,7 +43,7 @@ export default function HomePage({ cart, onAddToCart, onNavigate }: HomePageProp
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Banner */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-gray-900 via-amber-950 to-gray-900 text-white">
+      <section className="relative overflow-hidden bg-linear-to-r from-gray-900 via-amber-950 to-gray-900 text-white">
         <div
           className="absolute inset-0 opacity-30"
           style={{
@@ -105,7 +105,7 @@ export default function HomePage({ cart, onAddToCart, onNavigate }: HomePageProp
       </section>
 
       {/* Flash sale banner */}
-      <div className="bg-gradient-to-r from-red-600 to-orange-500 text-white">
+      <div className="bg-linear-to-r from-red-600 to-orange-500 text-white">
         <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm font-semibold">
             <span className="animate-pulse">🔥</span>
@@ -170,7 +170,7 @@ export default function HomePage({ cart, onAddToCart, onNavigate }: HomePageProp
             backgroundPosition: 'center',
           }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-amber-900/80 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-r from-amber-900/80 to-transparent" />
           <div className="relative px-8">
             <p className="text-amber-300 text-sm font-semibold mb-1">✨ New Collection</p>
             <h3 className="text-white text-2xl md:text-3xl font-black mb-3">Khaleeji Luxuries</h3>
@@ -290,7 +290,7 @@ export default function HomePage({ cart, onAddToCart, onNavigate }: HomePageProp
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-lg">💎</div>
+                <div className="w-8 h-8 rounded-lg bg-linear-to-br from-amber-500 to-orange-600 flex items-center justify-center text-lg">💎</div>
                 <span className="text-white font-black">ZeshViv<span className="text-amber-500"> Perfumes</span></span>
               </div>
               <p className="text-sm leading-relaxed">Mombasa's premium online perfume store. Quality scents, fast delivery, M-Pesa payments.</p>

@@ -158,7 +158,7 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
           <div className="space-y-4">
             {/* Profile Card */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-8 text-white">
+              <div className="bg-linear-to-r from-amber-500 to-orange-500 px-6 py-8 text-white">
                 <div className="flex items-center gap-4">
                   {userAvatar ? (
                     <img
@@ -187,7 +187,7 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
                   </h3>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                      <Mail className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      <Mail className="w-4 h-4 text-gray-400 shrink-0" />
                       <div className="flex-1 min-w-0">
                         <div className="text-xs text-gray-500">Email</div>
                         <div className="text-sm font-medium text-gray-900 truncate">{user.email}</div>
@@ -197,14 +197,14 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
                       </span>
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                      <Phone className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      <Phone className="w-4 h-4 text-gray-400 shrink-0" />
                       <div className="flex-1 min-w-0">
                         <div className="text-xs text-gray-500">Phone</div>
                         <div className="text-sm font-medium text-gray-900">{userPhone}</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                      <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
                       <div className="flex-1 min-w-0">
                         <div className="text-xs text-gray-500">Member Since</div>
                         <div className="text-sm font-medium text-gray-900">
@@ -381,7 +381,7 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
               <div className="divide-y divide-gray-50">
                 {selectedOrder.items?.map((item, i) => (
                   <div key={i} className="flex items-center gap-3 p-4">
-                    <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
+                    <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-2xl shrink-0">
                       {item.product_emoji || '📦'}
                     </div>
                     <div className="flex-1 min-w-0">

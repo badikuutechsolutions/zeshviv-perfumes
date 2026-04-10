@@ -150,7 +150,7 @@ export default function AuthPage({ onNavigate, redirectAfterLogin = 'checkout' }
         {/* Header */}
         <div className="bg-gray-900 text-white px-6 py-6 rounded-t-2xl">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center text-2xl shadow-lg">
+            <div className="w-12 h-12 bg-linear-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center text-2xl shadow-lg">
               💎
             </div>
             <div>

@@ -10,6 +10,8 @@ interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, name: string, phone: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  updatePassword: (newPassword: string) => Promise<void>;
+  updateProfile: (data: { name?: string; phone?: string }) => Promise<void>;
   signOut: () => Promise<void>;
   isAuthenticated: boolean;
 }
@@ -73,6 +75,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error;
   };
 
+  const updatePassword = async (newPassword: string) => {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw error;
+  };
+
+  const updateProfile = async (data: { name?: string; phone?: string }) => {
+    const { error } = await supabase.auth.updateUser({ data });
+    if (error) throw error;
+  };
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
@@ -88,6 +100,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signInWithEmail,
         signUp,
         resetPassword,
+        updatePassword,
+        updateProfile,
         signOut,
         isAuthenticated: !!user,
       }}

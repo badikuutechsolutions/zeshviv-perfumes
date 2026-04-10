@@ -86,7 +86,7 @@ export default function CartPage({ cart, onUpdateCart, onNavigate }: CartPagePro
               <div key={product.id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex gap-4">
                 {/* Product icon */}
                 <div
-                  className="w-20 h-20 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl flex items-center justify-center flex-shrink-0 cursor-pointer"
+                  className="w-20 h-20 bg-linear-to-br from-amber-50 to-orange-50 rounded-xl flex items-center justify-center shrink-0 cursor-pointer"
                   onClick={() => onNavigate('product', product.id)}
                 >
                   <span className="text-4xl">{product.emoji}</span>
@@ -129,7 +129,7 @@ export default function CartPage({ cart, onUpdateCart, onNavigate }: CartPagePro
                 {/* Remove */}
                 <button
                   onClick={() => onUpdateCart(product.id, 0)}
-                  className="text-gray-300 hover:text-red-500 transition-colors flex-shrink-0"
+                  className="text-gray-300 hover:text-red-500 transition-colors shrink-0"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

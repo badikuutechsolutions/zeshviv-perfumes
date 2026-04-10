@@ -238,23 +238,23 @@ export default function CheckoutPage({ cart, onPlaceOrder, onNavigate, isLoading
                     <div className="text-xs text-gray-600 font-semibold mb-2">How to pay:</div>
                     <ol className="text-xs text-gray-700 space-y-1.5">
                       <li className="flex items-start gap-2">
-                        <span className="w-5 h-5 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">1</span>
+                        <span className="w-5 h-5 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">1</span>
                         <span>Go to <strong>M-Pesa</strong> on your phone</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="w-5 h-5 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">2</span>
+                        <span className="w-5 h-5 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">2</span>
                         <span>Select <strong>Pochi la Biashara</strong></span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="w-5 h-5 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">3</span>
+                        <span className="w-5 h-5 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">3</span>
                         <span>Enter number: <strong>{pochiNumber}</strong></span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="w-5 h-5 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">4</span>
+                        <span className="w-5 h-5 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">4</span>
                         <span>Enter amount: <strong>KES {total.toLocaleString()}</strong></span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="w-5 h-5 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">5</span>
+                        <span className="w-5 h-5 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">5</span>
                         <span>Enter your M-Pesa PIN and confirm</span>
                       </li>
                     </ol>
@@ -312,14 +312,14 @@ export default function CheckoutPage({ cart, onPlaceOrder, onNavigate, isLoading
               <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
                 {cartProducts.map(({ item, product }) => (
                   <div key={product.id} className="flex gap-3 text-sm">
-                    <div className="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center shrink-0">
                       <span className="text-xl">{product.emoji}</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold text-gray-800 truncate">{product.name}</div>
                       <div className="text-gray-500 text-xs">x{item.quantity} × KES {product.price.toLocaleString()}</div>
                     </div>
-                    <div className="font-bold text-gray-800 flex-shrink-0">KES {(product.price * item.quantity).toLocaleString()}</div>
+                    <div className="font-bold text-gray-800 shrink-0">KES {(product.price * item.quantity).toLocaleString()}</div>
                   </div>
                 ))}
               </div>

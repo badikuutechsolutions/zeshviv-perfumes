@@ -18,7 +18,7 @@ export default function Navbar({ cart, onNavigate, currentPage }: NavbarProps) {
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       {/* Top promo bar */}
-      <div className="bg-gradient-to-r from-amber-600 to-orange-500 text-white text-center py-1.5 text-xs font-medium tracking-wide">
+      <div className="bg-linear-to-r from-amber-600 to-orange-500 text-white text-center py-1.5 text-xs font-medium tracking-wide">
         🚀 FREE delivery within Mombasa CBD for orders above KES 3,000 &nbsp;|&nbsp; 📞 Call/WhatsApp: 0712 345 678
       </div>
 
@@ -27,9 +27,9 @@ export default function Navbar({ cart, onNavigate, currentPage }: NavbarProps) {
           {/* Logo */}
           <button
             onClick={() => onNavigate('home')}
-            className="flex items-center gap-2 flex-shrink-0"
+            className="flex items-center gap-2 shrink-0"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-xl shadow">
+            <div className="w-9 h-9 rounded-xl bg-linear-to-br from-amber-500 to-orange-600 flex items-center justify-center text-xl shadow">
               💎
             </div>
             <div>

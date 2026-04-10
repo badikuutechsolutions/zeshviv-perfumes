@@ -31,7 +31,7 @@ export default function OrderSuccessPage({ orderId, onNavigate }: OrderSuccessPa
             { icon: '📞', title: 'Rider Will Call You', desc: 'Expect a call from our delivery rider for directions.' },
           ].map((step, i) => (
             <div key={i} className="flex gap-3">
-              <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0 text-lg border border-amber-100">
+              <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center shrink-0 text-lg border border-amber-100">
                 {step.icon}
               </div>
               <div>

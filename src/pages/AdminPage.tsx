@@ -544,6 +544,12 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
               🏪 View Store
             </button>
             <button
+              onClick={() => onNavigate('admin-profile')}
+              className="text-sm bg-amber-500/20 text-amber-300 px-3 py-2 rounded-lg hover:bg-amber-500/30 transition-colors"
+            >
+              👤 My Profile
+            </button>
+            <button
               onClick={() => { setIsAuthenticated(false); setPasswordInput(''); }}
               className="text-sm bg-red-500/20 text-red-300 px-3 py-2 rounded-lg hover:bg-red-500/30 transition-colors"
             >
