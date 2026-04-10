@@ -66,7 +66,7 @@ export default function Navbar({ cart, onNavigate, currentPage }: NavbarProps) {
           <div className="flex items-center gap-2">
             {/* User Auth */}
             {isAuthenticated && user ? (
-              <div className="relative group hidden md:block">
+              <div className="relative group hidden md:block" style={{ zIndex: 9999 }}>
                 <button className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors">
                   {user.user_metadata?.avatar_url ? (
                     <img
@@ -84,8 +84,8 @@ export default function Navbar({ cart, onNavigate, currentPage }: NavbarProps) {
                   </span>
                 </button>
                 {/* Dropdown */}
-                <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 hidden group-hover:block z-50">
-                  <div className="px-4 py-2 border-b border-gray-100">
+                <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-xl shadow-xl border border-gray-100 py-2 hidden group-hover:block" style={{ zIndex: 99999 }}>
+                  <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
                     <div className="font-semibold text-gray-800 text-sm truncate">
                       {user.user_metadata?.name || 'User'}
                     </div>
@@ -93,13 +93,13 @@ export default function Navbar({ cart, onNavigate, currentPage }: NavbarProps) {
                   </div>
                   <button
                     onClick={() => onNavigate('profile')}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors flex items-center gap-2"
                   >
                     👤 My Account
                   </button>
                   <button
                     onClick={async () => { await signOut(); }}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
                   >
                     🚪 Sign Out
                   </button>
@@ -159,8 +159,8 @@ export default function Navbar({ cart, onNavigate, currentPage }: NavbarProps) {
               </svg>
               <span className="hidden sm:inline">Cart</span>
               {totalItems > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
-                  {totalItems}
+                <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold leading-none px-0.5 border-2 border-white">
+                  {totalItems > 99 ? '99+' : totalItems}
                 </span>
               )}
             </button>

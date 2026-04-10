@@ -15,6 +15,10 @@ import {
   CheckCircle,
   Truck,
   ArrowLeft,
+  Lock,
+  Eye,
+  EyeOff,
+  Save,
 } from 'lucide-react';
 
 interface ProfilePageProps {
@@ -42,10 +46,38 @@ type OrderRecord = {
 };
 
 export default function ProfilePage({ onNavigate }: ProfilePageProps) {
-  const { user, signOut } = useAuth();
+  const { user, signOut, updateProfile, updatePassword } = useAuth();
   const [orders, setOrders] = useState<OrderRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeSection, setActiveSection] = useState<'profile' | 'orders' | 'order-detail'>('profile');
+  const [activeSection, setActiveSection] = useState<'profile' | 'orders' | 'order-detail' | 'edit' | 'password'>('profile');
+
+  // Edit form state
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editSaving, setEditSaving] = useState(false);
+
+  // Password change state
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [passwordSaving, setPasswordSaving] = useState(false);
+
+  // Toast state
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const showToast = (type: 'success' | 'error', message: string) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  // Initialize edit form
+  useEffect(() => {
+    if (user) {
+      setEditName(user.user_metadata?.full_name || user.user_metadata?.name || '');
+      setEditPhone(user.user_metadata?.phone || '');
+    }
+  }, [user]);
   const [selectedOrder, setSelectedOrder] = useState<OrderRecord | null>(null);
 
   const statusConfig: Record<string, { label: string; color: string; bg: string; icon: any; message?: string }> = {
@@ -113,11 +145,6 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
     }
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    onNavigate('home');
-  };
-
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('en-KE', {
       year: 'numeric',
@@ -126,6 +153,53 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editName.trim()) {
+      showToast('error', 'Name is required');
+      return;
+    }
+    setEditSaving(true);
+    try {
+      await updateProfile({ name: editName.trim(), phone: editPhone.trim() });
+      showToast('success', 'Profile updated!');
+      setActiveSection('profile');
+    } catch (error: any) {
+      showToast('error', error.message || 'Failed to update profile');
+    } finally {
+      setEditSaving(false);
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword.length < 6) {
+      showToast('error', 'Password must be at least 6 characters');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      showToast('error', 'Passwords do not match');
+      return;
+    }
+    setPasswordSaving(true);
+    try {
+      await updatePassword(newPassword);
+      showToast('success', 'Password changed!');
+      setNewPassword('');
+      setConfirmPassword('');
+      setActiveSection('profile');
+    } catch (error: any) {
+      showToast('error', error.message || 'Failed to change password');
+    } finally {
+      setPasswordSaving(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    onNavigate('home');
   };
 
   if (!user) return null;
@@ -153,6 +227,15 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-6">
+        {/* Toast */}
+        {toast && (
+          <div className={`fixed top-4 right-4 z-[99999] px-5 py-3 rounded-xl shadow-lg text-sm font-semibold text-white ${
+            toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
+          }`}>
+            {toast.message}
+          </div>
+        )}
+
         {/* Profile Section */}
         {activeSection === 'profile' && (
           <div className="space-y-4">
@@ -216,7 +299,33 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
                 </div>
 
                 {/* Actions */}
-                <div className="pt-4 border-t">
+                <div className="pt-4 border-t space-y-2">
+                  <button
+                    onClick={() => setActiveSection('edit')}
+                    className="w-full flex items-center justify-between p-4 bg-amber-50 rounded-xl hover:bg-amber-100 transition-colors border border-amber-100"
+                  >
+                    <div className="flex items-center gap-3">
+                      <User className="w-5 h-5 text-amber-600" />
+                      <div className="text-left">
+                        <div className="text-sm font-semibold text-gray-900">Edit Profile</div>
+                        <div className="text-xs text-gray-500">Update your name and phone</div>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-amber-400" />
+                  </button>
+                  <button
+                    onClick={() => setActiveSection('password')}
+                    className="w-full flex items-center justify-between p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors border border-blue-100"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Lock className="w-5 h-5 text-blue-600" />
+                      <div className="text-left">
+                        <div className="text-sm font-semibold text-gray-900">Change Password</div>
+                        <div className="text-xs text-gray-500">Update your account password</div>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-blue-400" />
+                  </button>
                   <button
                     onClick={() => setActiveSection('orders')}
                     className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
@@ -241,6 +350,98 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
                   Sign Out
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Profile Section */}
+        {activeSection === 'edit' && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 mb-4">
+              <button onClick={() => setActiveSection('profile')} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                <ArrowLeft className="w-5 h-5 text-gray-600" />
+              </button>
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">Edit Profile</h2>
+                <p className="text-xs text-gray-500">Update your personal information</p>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <form onSubmit={handleSaveProfile} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Email</label>
+                  <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-xl border border-gray-200">
+                    <Mail className="w-4 h-4 text-gray-400 shrink-0" />
+                    <span className="text-sm text-gray-900">{user.email}</span>
+                    <span className="ml-auto text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
+                      {user.email_confirmed_at ? 'Verified' : 'Unverified'}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-gray-400 mt-1">Email cannot be changed</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Full Name</label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm outline-none focus:border-amber-400" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Phone Number</label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input type="tel" value={editPhone} onChange={e => setEditPhone(e.target.value)} className="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm outline-none focus:border-amber-400" />
+                  </div>
+                </div>
+                <button type="submit" disabled={editSaving} className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold text-white transition-all ${editSaving ? 'bg-gray-300 cursor-not-allowed' : 'bg-amber-500 hover:bg-amber-400 shadow-lg'}`}>
+                  {editSaving ? 'Saving...' : <><Save className="w-4 h-4" /> Save Changes</>}
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Change Password Section */}
+        {activeSection === 'password' && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 mb-4">
+              <button onClick={() => setActiveSection('profile')} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                <ArrowLeft className="w-5 h-5 text-gray-600" />
+              </button>
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">Change Password</h2>
+                <p className="text-xs text-gray-500">Update your account password</p>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <form onSubmit={handleChangePassword} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">New Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input type={showNew ? 'text' : 'password'} value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="At least 6 characters" className="w-full border border-gray-200 rounded-xl pl-10 pr-10 py-3 text-sm outline-none focus:border-amber-400" />
+                    <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                      {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Confirm Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input type={showConfirm ? 'text' : 'password'} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Re-enter your password" className="w-full border border-gray-200 rounded-xl pl-10 pr-10 py-3 text-sm outline-none focus:border-amber-400" />
+                    <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                      {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-3">
+                  <p className="text-xs text-blue-700">💡 Password must be at least 6 characters. Use a mix of letters, numbers, and symbols for better security.</p>
+                </div>
+                <button type="submit" disabled={passwordSaving} className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold text-white transition-all ${passwordSaving ? 'bg-gray-300 cursor-not-allowed' : 'bg-amber-500 hover:bg-amber-400 shadow-lg'}`}>
+                  {passwordSaving ? 'Updating...' : <><Lock className="w-4 h-4" /> Update Password</>}
+                </button>
+              </form>
             </div>
           </div>
         )}
