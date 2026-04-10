@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchProducts } from '../services/products';
+import { fetchStoreSettings } from '../services/settings';
 import { Product, CartItem } from '../types';
 
 interface CartPageProps {
@@ -8,17 +9,18 @@ interface CartPageProps {
   onNavigate: (page: string) => void;
 }
 
-const DELIVERY_FEE = 200;
-const FREE_DELIVERY_THRESHOLD = 3000;
-
 export default function CartPage({ cart, onUpdateCart, onNavigate }: CartPageProps) {
   const [products, setProducts] = useState<Product[]>([]);
+  const [freeThreshold, setFreeThreshold] = useState(3000);
+  const [defaultFee, setDefaultFee] = useState(200);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchProducts()
-      .then(data => {
-        setProducts(data);
+    Promise.all([fetchProducts(), fetchStoreSettings()])
+      .then(([prods, settings]) => {
+        setProducts(prods);
+        setFreeThreshold(settings.freeDeliveryThreshold);
+        setDefaultFee(settings.defaultDeliveryFee);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -32,7 +34,7 @@ export default function CartPage({ cart, onUpdateCart, onNavigate }: CartPagePro
     .filter(cp => cp.product) as { item: CartItem; product: Product }[];
 
   const subtotal = cartProducts.reduce((sum, { item, product }) => sum + product.price * item.quantity, 0);
-  const deliveryFee = subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
+  const deliveryFee = subtotal >= freeThreshold ? 0 : defaultFee;
   const total = subtotal + deliveryFee;
 
   if (loading) {
@@ -161,9 +163,9 @@ export default function CartPage({ cart, onUpdateCart, onNavigate }: CartPagePro
                     {deliveryFee === 0 ? 'FREE 🎉' : `KES ${deliveryFee}`}
                   </span>
                 </div>
-                {subtotal < FREE_DELIVERY_THRESHOLD && (
+                {subtotal < freeThreshold && (
                   <div className="bg-amber-50 border border-amber-100 rounded-lg p-2.5 text-xs text-amber-700">
-                    💡 Add KES {(FREE_DELIVERY_THRESHOLD - subtotal).toLocaleString()} more for FREE delivery!
+                    💡 Add KES {(freeThreshold - subtotal).toLocaleString()} more for FREE delivery!
                   </div>
                 )}
               </div>

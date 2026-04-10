@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchProducts } from '../services/products';
+import { fetchStoreSettings, DeliveryZone } from '../services/settings';
 import { Product, CartItem } from '../types';
 import type { User } from '@supabase/supabase-js';
 import { useAuth } from '../contexts/AuthContext';
@@ -23,23 +24,17 @@ interface CheckoutPageProps {
   user: User;
 }
 
-const deliveryZones = [
-  { name: 'Mombasa CBD', fee: 0, threshold: 3000, time: '1-2 hours', label: 'FREE over KES 3k, else KES 150' },
-  { name: 'Nyali & Bamburi', fee: 200, threshold: 99999, time: '2-3 hours', label: 'KES 200' },
-  { name: 'Likoni & South Coast', fee: 250, threshold: 99999, time: '2-4 hours', label: 'KES 250' },
-  { name: 'Kisauni & Bombolulu', fee: 200, threshold: 99999, time: '2-3 hours', label: 'KES 200' },
-  { name: 'Mtwapa', fee: 300, threshold: 99999, time: '3-4 hours', label: 'KES 300' },
-  { name: 'Diani & Ukunda', fee: 400, threshold: 99999, time: 'Next day', label: 'KES 400' },
-];
-
 export default function CheckoutPage({ cart, onPlaceOrder, onNavigate, isLoading, user }: CheckoutPageProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deliveryZones, setDeliveryZones] = useState<DeliveryZone[]>([]);
+  const [pochiNumber, setPochiNumber] = useState('0712 345 678');
+  const [freeThreshold, setFreeThreshold] = useState(3000);
   const [form, setForm] = useState({
     customerName: '',
     phone: '',
     location: '',
-    deliveryZone: deliveryZones[0].name,
+    deliveryZone: '',
     paymentMethod: 'mpesa' as 'mpesa' | 'cash',
     mpesaNumber: '',
     email: user?.email || '',
@@ -47,9 +42,15 @@ export default function CheckoutPage({ cart, onPlaceOrder, onNavigate, isLoading
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    fetchProducts()
-      .then(data => {
-        setProducts(data);
+    Promise.all([fetchProducts(), fetchStoreSettings()])
+      .then(([prods, settings]) => {
+        setProducts(prods);
+        setDeliveryZones(settings.deliveryZones);
+        setPochiNumber(settings.pochiNumber);
+        setFreeThreshold(settings.freeDeliveryThreshold);
+        if (settings.deliveryZones.length > 0) {
+          setForm(prev => ({ ...prev, deliveryZone: settings.deliveryZones[0].name }));
+        }
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -63,8 +64,8 @@ export default function CheckoutPage({ cart, onPlaceOrder, onNavigate, isLoading
     .filter(cp => cp.product) as { item: CartItem; product: Product }[];
 
   const subtotal = cartProducts.reduce((sum, { item, product }) => sum + product.price * item.quantity, 0);
-  const selectedZone = deliveryZones.find(z => z.name === form.deliveryZone)!;
-  const deliveryFee = form.deliveryZone === 'Mombasa CBD' && subtotal >= 3000 ? 0 : selectedZone.fee || 150;
+  const selectedZone = deliveryZones.find(z => z.name === form.deliveryZone);
+  const deliveryFee = form.deliveryZone === 'Mombasa CBD' && subtotal >= freeThreshold ? 0 : (selectedZone?.fee || 150);
   const total = subtotal + deliveryFee;
 
   const validate = () => {
@@ -229,7 +230,7 @@ export default function CheckoutPage({ cart, onPlaceOrder, onNavigate, isLoading
                     </div>
                     <div>
                       <div className="font-bold text-green-800 text-sm">Pochi la Biashara</div>
-                      <div className="text-xs text-green-600">Send to: <strong>0712 345 678</strong></div>
+                      <div className="text-xs text-green-600">Send to: <strong>{pochiNumber}</strong></div>
                     </div>
                   </div>
 
@@ -246,7 +247,7 @@ export default function CheckoutPage({ cart, onPlaceOrder, onNavigate, isLoading
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="w-5 h-5 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">3</span>
-                        <span>Enter number: <strong>0712 345 678</strong></span>
+                        <span>Enter number: <strong>{pochiNumber}</strong></span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="w-5 h-5 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">4</span>

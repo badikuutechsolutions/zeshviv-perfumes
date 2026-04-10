@@ -1,12 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { Product } from '../types';
+import SettingsPage from './SettingsPage';
+import AdminManagementPage from './AdminManagementPage';
 
 // Admin password - change this to your own
 const ADMIN_PASSWORD = 'zeshviv2025';
 
 type ModalMode = 'list' | 'add' | 'edit';
-type TabMode = 'products' | 'orders';
+type TabMode = 'products' | 'orders' | 'settings' | 'admins';
 
 type OrderRecord = {
   id: string;
@@ -478,6 +480,24 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
               )}
               {activeTab === 'orders' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500" />}
             </button>
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`px-5 py-3.5 text-sm font-semibold transition-colors relative ${
+                activeTab === 'settings' ? 'text-amber-600' : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              ⚙️ Settings
+              {activeTab === 'settings' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500" />}
+            </button>
+            <button
+              onClick={() => setActiveTab('admins')}
+              className={`px-5 py-3.5 text-sm font-semibold transition-colors relative ${
+                activeTab === 'admins' ? 'text-amber-600' : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              👥 Admins
+              {activeTab === 'admins' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500" />}
+            </button>
           </div>
         </div>
       </div>
@@ -767,6 +787,16 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
               </div>
             )}
           </>
+        )}
+
+        {/* ===== SETTINGS TAB ===== */}
+        {activeTab === 'settings' && (
+          <SettingsPage showToast={showToast} />
+        )}
+
+        {/* ===== ADMIN MANAGEMENT TAB ===== */}
+        {activeTab === 'admins' && (
+          <AdminManagementPage showToast={showToast} />
         )}
 
         {/* ===== ADD/EDIT PRODUCT MODAL ===== */}
