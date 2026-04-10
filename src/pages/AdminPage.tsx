@@ -119,6 +119,7 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
   const [imageUploading, setImageUploading] = useState(false);
   const [currentImageUrl, setCurrentImageUrl] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const formBodyRef = useRef<HTMLDivElement>(null);
 
   // Orders state
   const [orders, setOrders] = useState<OrderRecord[]>([]);
@@ -263,7 +264,11 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
   const openAdd = () => {
     setForm(emptyProduct);
     setEditingId(null);
+    setCurrentImageUrl('');
+    setImagePreview(null);
+    setImageFile(null);
     setModalMode('add');
+    setTimeout(() => formBodyRef.current?.scrollTo({ top: 0 }), 50);
   };
 
   const openEdit = (product: Product) => {
@@ -289,6 +294,7 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
     setImageFile(null);
     setEditingId(product.id);
     setModalMode('edit');
+    setTimeout(() => formBodyRef.current?.scrollTo({ top: 0 }), 50);
   };
 
   // Save product
@@ -920,23 +926,23 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
 
         {/* ===== ADD/EDIT PRODUCT MODAL ===== */}
         {(modalMode === 'add' || modalMode === 'edit') && (
-          <div className="fixed inset-0 bg-black/50 z-40 flex items-start justify-center overflow-y-auto py-8">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 my-8">
-              {/* Modal header */}
-              <div className="bg-gray-900 text-white px-6 py-4 flex items-center justify-between rounded-t-2xl">
+          <div className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+              {/* Modal header - fixed */}
+              <div className="bg-gray-900 text-white px-6 py-4 flex items-center justify-between rounded-t-2xl shrink-0">
                 <h2 className="font-black text-lg">
                   {modalMode === 'add' ? '➕ Add New Perfume' : '✏️ Edit Perfume'}
                 </h2>
                 <button
-                  onClick={() => setModalMode('list')}
+                  onClick={() => { setModalMode('list'); resetImageState(); }}
                   className="text-gray-400 hover:text-white text-xl font-bold"
                 >
                   ×
                 </button>
               </div>
 
-              {/* Form body */}
-              <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+              {/* Form body - scrollable */}
+              <div ref={formBodyRef} className="p-6 space-y-5 overflow-y-auto flex-1">
                 {/* Product Image Upload - Prominent Full Width */}
                 <div className="bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 p-5">
                   <label className="block text-sm font-bold text-gray-700 mb-3 text-center">📸 Product Image</label>
@@ -1165,8 +1171,8 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
                 </div>
               </div>
 
-              {/* Modal footer */}
-              <div className="border-t px-6 py-4 flex items-center justify-end gap-3 rounded-b-2xl">
+              {/* Modal footer - fixed */}
+              <div className="border-t px-6 py-4 flex items-center justify-end gap-3 rounded-b-2xl shrink-0 bg-white">
                 <button
                   onClick={() => setModalMode('list')}
                   className="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors"
