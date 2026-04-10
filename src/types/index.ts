@@ -36,4 +36,4 @@ export interface Order {
   createdAt: Date;
 }
 
-export type Page = 'home' | 'shop' | 'product' | 'cart' | 'checkout' | 'order-success' | 'viability';
+export type Page = 'home' | 'shop' | 'product' | 'cart' | 'checkout' | 'order-success' | 'viability' | 'admin';

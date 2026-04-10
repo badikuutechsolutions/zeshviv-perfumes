@@ -62,6 +62,18 @@ export default function Navbar({ cart, onNavigate, currentPage }: NavbarProps) {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
+            {/* Admin */}
+            <button
+              onClick={() => onNavigate('admin')}
+              className={`hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                currentPage === 'admin'
+                  ? 'bg-purple-100 text-purple-700'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              ⚙️ Admin
+            </button>
+
             {/* Viability Report */}
             <button
               onClick={() => onNavigate('viability')}
@@ -129,6 +141,7 @@ export default function Navbar({ cart, onNavigate, currentPage }: NavbarProps) {
                 </svg>
               </button>
             </div>
+            <button onClick={() => { onNavigate('admin'); setMenuOpen(false); }} className="block w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100">⚙️ Admin Panel</button>
             <button onClick={() => { onNavigate('shop'); setMenuOpen(false); }} className="block w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100">🛍️ Shop All Perfumes</button>
             <button onClick={() => { onNavigate('viability'); setMenuOpen(false); }} className="block w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100">📊 Business Viability Report</button>
           </div>
