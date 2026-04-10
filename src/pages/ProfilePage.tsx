@@ -48,11 +48,11 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
   const [activeSection, setActiveSection] = useState<'profile' | 'orders' | 'order-detail'>('profile');
   const [selectedOrder, setSelectedOrder] = useState<OrderRecord | null>(null);
 
-  const statusConfig: Record<string, { label: string; color: string; bg: string; icon: any }> = {
-    pending: { label: 'Pending', color: 'text-orange-600', bg: 'bg-orange-50', icon: Clock },
-    confirmed: { label: 'Confirmed', color: 'text-blue-600', bg: 'bg-blue-50', icon: CheckCircle },
-    delivered: { label: 'Delivered', color: 'text-green-600', bg: 'bg-green-50', icon: Truck },
-    cancelled: { label: 'Cancelled', color: 'text-red-600', bg: 'bg-red-50', icon: Package },
+  const statusConfig: Record<string, { label: string; color: string; bg: string; icon: any; message?: string }> = {
+    pending: { label: 'Pending — Payment Verification', color: 'text-orange-600', bg: 'bg-orange-50', icon: Clock, message: 'We\'re waiting to confirm your payment. Once confirmed, status will update to Confirmed.' },
+    confirmed: { label: 'Confirmed', color: 'text-blue-600', bg: 'bg-blue-50', icon: CheckCircle, message: 'Payment received! We\'re preparing your order for delivery.' },
+    delivered: { label: 'Delivered', color: 'text-green-600', bg: 'bg-green-50', icon: Truck, message: 'Your order has been delivered. Enjoy your fragrance!' },
+    cancelled: { label: 'Cancelled', color: 'text-red-600', bg: 'bg-red-50', icon: Package, message: 'This order was cancelled.' },
   };
 
   useEffect(() => {
@@ -61,6 +61,9 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
       return;
     }
     fetchOrders();
+    // Auto-refresh orders every 30 seconds so customer sees status changes
+    const interval = setInterval(fetchOrders, 30000);
+    return () => clearInterval(interval);
   }, [user]);
 
   const fetchOrders = async () => {
@@ -353,12 +356,19 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
               const config = statusConfig[selectedOrder.status] || statusConfig.pending;
               const StatusIcon = config.icon;
               return (
-                <div className={`${config.bg} border border-${config.color.replace('text-', '')}-100 rounded-2xl p-4 flex items-center gap-3`}>
-                  <StatusIcon className={`w-6 h-6 ${config.color}`} />
-                  <div>
-                    <div className={`font-bold ${config.color}`}>{config.label}</div>
-                    <div className="text-xs text-gray-500">Order placed on {formatDate(selectedOrder.created_at)}</div>
+                <div>
+                  <div className={`${config.bg} border border-${config.color.replace('text-', '')}-100 rounded-2xl p-4 flex items-center gap-3`}>
+                    <StatusIcon className={`w-6 h-6 ${config.color}`} />
+                    <div>
+                      <div className={`font-bold ${config.color}`}>{config.label}</div>
+                      <div className="text-xs text-gray-500">Order placed on {formatDate(selectedOrder.created_at)}</div>
+                    </div>
                   </div>
+                  {config.message && (
+                    <div className="mt-2 text-xs text-gray-500 bg-gray-50 rounded-xl p-3 border border-gray-100">
+                      💡 {config.message}
+                    </div>
+                  )}
                 </div>
               );
             })()}

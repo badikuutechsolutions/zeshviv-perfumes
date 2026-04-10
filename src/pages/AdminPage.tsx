@@ -6,35 +6,97 @@ import { Product } from '../types';
 const ADMIN_PASSWORD = 'zeshviv2025';
 
 type ModalMode = 'list' | 'add' | 'edit';
+type TabMode = 'products' | 'orders';
+
+type OrderRecord = {
+  id: string;
+  customer_name: string;
+  phone: string;
+  location: string;
+  delivery_zone: string;
+  payment_method: string;
+  subtotal: number;
+  delivery_fee: number;
+  total: number;
+  status: string;
+  created_at: string;
+  email?: string;
+};
+
+type ProductRow = {
+  id: number;
+  name: string;
+  brand: string;
+  price: number;
+  original_price: number | null;
+  category: string;
+  size: string;
+  rating: number;
+  reviews_count: number;
+  in_stock: boolean;
+  badge: string | null;
+  description: string;
+  notes_top: string[];
+  notes_middle: string[];
+  notes_base: string[];
+  emoji: string;
+  image_url: string | null;
+  created_at: string;
+};
+
+type FormState = {
+  name: string;
+  brand: string;
+  price: number;
+  originalPrice: number | null;
+  category: 'men' | 'women' | 'unisex' | 'oud';
+  size: string;
+  rating: number;
+  reviews: number;
+  inStock: boolean;
+  badge: null | 'bestseller' | 'new' | 'sale' | 'hot';
+  description: string;
+  notesTop: string[];
+  notesMiddle: string[];
+  notesBase: string[];
+  emoji: string;
+};
 
 const CATEGORY_OPTIONS = ['men', 'women', 'unisex', 'oud'] as const;
-const BADGE_OPTIONS = [null, 'bestseller', 'new', 'sale', 'hot'] as const;
 
-const emptyProduct = {
+const emptyProduct: FormState = {
   name: '',
   brand: '',
   price: 0,
-  originalPrice: null as number | null,
-  category: 'unisex' as typeof CATEGORY_OPTIONS[number],
+  originalPrice: null,
+  category: 'unisex',
   size: '100ml',
   rating: 4.5,
   reviews: 0,
   inStock: true,
-  badge: null as typeof BADGE_OPTIONS[number],
+  badge: null,
   description: '',
-  notesTop: [''] as string[],
-  notesMiddle: [''] as string[],
-  notesBase: [''] as string[],
+  notesTop: [''],
+  notesMiddle: [''],
+  notesBase: [''],
   emoji: '🔶',
 };
 
-type FormState = typeof emptyProduct;
+const statusConfig: Record<string, { label: string; color: string; bg: string; nextStatus?: string; nextLabel?: string }> = {
+  pending: { label: 'Pending', color: 'text-orange-600', bg: 'bg-orange-50', nextStatus: 'confirmed', nextLabel: 'Confirm' },
+  confirmed: { label: 'Confirmed', color: 'text-blue-600', bg: 'bg-blue-50', nextStatus: 'delivered', nextLabel: 'Mark Delivered' },
+  delivered: { label: 'Delivered', color: 'text-green-600', bg: 'bg-green-50' },
+  cancelled: { label: 'Cancelled', color: 'text-red-600', bg: 'bg-red-50' },
+};
 
 export default function AdminPage({ onNavigate }: { onNavigate: (page: string) => void }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
+  const [activeTab, setActiveTab] = useState<TabMode>('products');
+
+  // Products state
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalMode, setModalMode] = useState<ModalMode>('list');
@@ -42,6 +104,12 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
   const [form, setForm] = useState<FormState>(emptyProduct);
   const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+
+  // Orders state
+  const [orders, setOrders] = useState<OrderRecord[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [orderFilter, setOrderFilter] = useState<string>('all');
+
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const showToast = useCallback((type: 'success' | 'error', message: string) => {
@@ -72,7 +140,7 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
       showToast('error', 'Failed to load products');
     } else {
       setProducts(
-        (data || []).map((row: any) => ({
+        (data || []).map((row: ProductRow) => ({
           id: row.id,
           name: row.name,
           brand: row.brand,
@@ -98,9 +166,36 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
     setLoading(false);
   };
 
+  // Fetch orders
+  const fetchOrders = async () => {
+    setOrdersLoading(true);
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching orders:', error);
+      showToast('error', 'Failed to load orders');
+    } else {
+      setOrders(data || []);
+    }
+    setOrdersLoading(false);
+  };
+
   useEffect(() => {
-    if (isAuthenticated) fetchProducts();
+    if (isAuthenticated) {
+      fetchProducts();
+      fetchOrders();
+    }
   }, [isAuthenticated]);
+
+  // Auto-refresh orders every 30 seconds
+  useEffect(() => {
+    if (!isAuthenticated || activeTab !== 'orders') return;
+    const interval = setInterval(fetchOrders, 30000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated, activeTab]);
 
   // Open add/edit modal
   const openAdd = () => {
@@ -132,7 +227,7 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
   };
 
   // Save product
-  const handleSave = async () => {
+  const handleSaveProduct = async () => {
     if (!form.name.trim() || !form.brand.trim() || form.price <= 0) {
       showToast('error', 'Please fill in name, brand, and a valid price');
       return;
@@ -182,7 +277,7 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
   };
 
   // Delete product
-  const handleDelete = async (id: number) => {
+  const handleDeleteProduct = async (id: number) => {
     const { error } = await supabase.from('products').delete().eq('id', id);
     if (error) {
       showToast('error', 'Failed to delete product');
@@ -207,7 +302,22 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
     }
   };
 
-  // Array field helper
+  // Update order status
+  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    const { error } = await supabase
+      .from('orders')
+      .update({ status: newStatus })
+      .eq('id', orderId);
+
+    if (error) {
+      showToast('error', 'Failed to update order status');
+    } else {
+      showToast('success', `Order marked as ${newStatus}`);
+      await fetchOrders();
+    }
+  };
+
+  // Array field helper for product form
   const ArrayField = ({
     label,
     value,
@@ -251,6 +361,16 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
     </div>
   );
 
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('en-KE', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
   // Login screen
   if (!isAuthenticated) {
     return (
@@ -289,6 +409,10 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
     );
   }
 
+  // Filtered orders
+  const filteredOrders = orderFilter === 'all' ? orders : orders.filter(o => o.status === orderFilter);
+  const pendingCount = orders.filter(o => o.status === 'pending').length;
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Toast */}
@@ -307,7 +431,7 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
             <span className="text-2xl">💎</span>
             <div>
               <h1 className="text-lg font-black">ZeshViv Admin</h1>
-              <p className="text-xs text-gray-400">Manage your perfume catalog</p>
+              <p className="text-xs text-gray-400">Manage your store</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -327,9 +451,41 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
         </div>
       </div>
 
+      {/* Tab Navigation */}
+      <div className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex gap-0">
+            <button
+              onClick={() => setActiveTab('products')}
+              className={`px-5 py-3.5 text-sm font-semibold transition-colors relative ${
+                activeTab === 'products' ? 'text-amber-600' : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              📦 Products
+              {activeTab === 'products' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500" />}
+            </button>
+            <button
+              onClick={() => setActiveTab('orders')}
+              className={`px-5 py-3.5 text-sm font-semibold transition-colors relative ${
+                activeTab === 'orders' ? 'text-amber-600' : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              🛒 Orders
+              {pendingCount > 0 && (
+                <span className="ml-1.5 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                  {pendingCount}
+                </span>
+              )}
+              {activeTab === 'orders' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500" />}
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {modalMode === 'list' && (
+        {/* ===== PRODUCTS TAB ===== */}
+        {activeTab === 'products' && modalMode === 'list' && (
           <>
             {/* Stats + Add button */}
             <div className="flex items-center justify-between mb-6">
@@ -434,7 +590,7 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
                               {deleteConfirm === p.id ? (
                                 <div className="flex items-center gap-1">
                                   <button
-                                    onClick={() => handleDelete(p.id)}
+                                    onClick={() => handleDeleteProduct(p.id)}
                                     className="text-xs bg-red-500 text-white px-2 py-1.5 rounded-lg font-medium"
                                   >
                                     Confirm
@@ -466,7 +622,154 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
           </>
         )}
 
-        {/* Add/Edit Modal */}
+        {/* ===== ORDERS TAB ===== */}
+        {activeTab === 'orders' && (
+          <>
+            {/* Orders header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-4">
+                <div className="bg-white rounded-xl border border-gray-100 px-5 py-3 shadow-sm">
+                  <div className="text-2xl font-black text-gray-900">{orders.length}</div>
+                  <div className="text-xs text-gray-500">Total Orders</div>
+                </div>
+                <div className="bg-white rounded-xl border border-gray-100 px-5 py-3 shadow-sm">
+                  <div className="text-2xl font-black text-orange-600">{pendingCount}</div>
+                  <div className="text-xs text-gray-500">Pending</div>
+                </div>
+                <div className="bg-white rounded-xl border border-gray-100 px-5 py-3 shadow-sm">
+                  <div className="text-2xl font-black text-green-600">KES {orders.filter(o => o.status === 'delivered').reduce((sum, o) => sum + o.total, 0).toLocaleString()}</div>
+                  <div className="text-xs text-gray-500">Revenue (Delivered)</div>
+                </div>
+              </div>
+              <button
+                onClick={fetchOrders}
+                className="bg-white border border-gray-200 hover:border-amber-400 text-gray-700 font-medium px-4 py-2.5 rounded-xl transition-colors text-sm"
+              >
+                🔄 Refresh
+              </button>
+            </div>
+
+            {/* Filter tabs */}
+            <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
+              {[
+                { key: 'all', label: 'All', count: orders.length },
+                { key: 'pending', label: '⏳ Pending', count: orders.filter(o => o.status === 'pending').length },
+                { key: 'confirmed', label: '✅ Confirmed', count: orders.filter(o => o.status === 'confirmed').length },
+                { key: 'delivered', label: '🚚 Delivered', count: orders.filter(o => o.status === 'delivered').length },
+                { key: 'cancelled', label: '❌ Cancelled', count: orders.filter(o => o.status === 'cancelled').length },
+              ].map(f => (
+                <button
+                  key={f.key}
+                  onClick={() => setOrderFilter(f.key)}
+                  className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    orderFilter === f.key
+                      ? 'bg-amber-500 text-white'
+                      : 'bg-white text-gray-600 border border-gray-200 hover:border-amber-400'
+                  }`}
+                >
+                  {f.label} ({f.count})
+                </button>
+              ))}
+            </div>
+
+            {/* Orders list */}
+            {ordersLoading ? (
+              <div className="text-center py-16">
+                <div className="animate-spin text-5xl mb-4">⏳</div>
+                <p className="text-gray-500">Loading orders...</p>
+              </div>
+            ) : filteredOrders.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center">
+                <div className="text-5xl mb-4">🛒</div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">No orders found</h3>
+                <p className="text-sm text-gray-500">
+                  {orderFilter !== 'all' ? 'Try changing the filter' : 'Orders will appear here once customers start buying'}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredOrders.map(order => {
+                  const config = statusConfig[order.status] || statusConfig.pending;
+
+                  return (
+                    <div key={order.id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+                      {/* Order header */}
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-gray-900">{order.id}</span>
+                            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${config.bg} ${config.color}`}>
+                              {config.label}
+                            </span>
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">{formatDate(order.created_at)}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-lg font-black text-amber-600">KES {order.total.toLocaleString()}</div>
+                          <div className="text-xs text-gray-500">{order.payment_method === 'mpesa' ? 'M-Pesa (Pochi)' : 'Cash on Delivery'}</div>
+                        </div>
+                      </div>
+
+                      {/* Customer info */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <div className="text-[10px] text-gray-500 font-semibold uppercase">Customer</div>
+                          <div className="text-sm font-medium text-gray-900">{order.customer_name}</div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] text-gray-500 font-semibold uppercase">Phone</div>
+                          <div className="text-sm font-medium text-gray-900">{order.phone}</div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] text-gray-500 font-semibold uppercase">Delivery Zone</div>
+                          <div className="text-sm font-medium text-gray-900">{order.delivery_zone}</div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] text-gray-500 font-semibold uppercase">Email</div>
+                          <div className="text-sm font-medium text-gray-900 truncate">{order.email || 'N/A'}</div>
+                        </div>
+                      </div>
+
+                      {/* Address */}
+                      <div className="mb-4 p-3 bg-amber-50 rounded-lg border border-amber-100">
+                        <div className="text-[10px] text-amber-600 font-semibold uppercase mb-0.5">Delivery Address</div>
+                        <div className="text-sm text-gray-700">{order.location}</div>
+                      </div>
+
+                      {/* Breakdown */}
+                      <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
+                        <span>Subtotal: <strong className="text-gray-700">KES {order.subtotal.toLocaleString()}</strong></span>
+                        <span>Delivery: <strong className="text-gray-700">KES {order.delivery_fee.toLocaleString()}</strong></span>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
+                        {config.nextStatus && (
+                          <button
+                            onClick={() => updateOrderStatus(order.id, config.nextStatus!)}
+                            className="bg-green-500 hover:bg-green-600 text-white font-bold text-sm px-4 py-2 rounded-lg transition-colors"
+                          >
+                            ✅ {config.nextLabel}
+                          </button>
+                        )}
+                        {order.status !== 'cancelled' && (
+                          <button
+                            onClick={() => updateOrderStatus(order.id, 'cancelled')}
+                            className="bg-red-50 hover:bg-red-100 text-red-600 font-medium text-sm px-4 py-2 rounded-lg transition-colors"
+                          >
+                            ❌ Cancel Order
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ===== ADD/EDIT PRODUCT MODAL ===== */}
         {(modalMode === 'add' || modalMode === 'edit') && (
           <div className="fixed inset-0 bg-black/50 z-40 flex items-start justify-center overflow-y-auto py-8">
             <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 my-8">
@@ -663,7 +966,7 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
                   Cancel
                 </button>
                 <button
-                  onClick={handleSave}
+                  onClick={handleSaveProduct}
                   disabled={saving}
                   className={`px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-all ${
                     saving
