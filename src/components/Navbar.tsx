@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CartItem } from '../types';
+import { useAuth } from '../contexts/AuthContext';
 
 interface NavbarProps {
   cart: CartItem[];
@@ -8,6 +9,7 @@ interface NavbarProps {
 }
 
 export default function Navbar({ cart, onNavigate, currentPage }: NavbarProps) {
+  const { user, signOut, isAuthenticated } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -62,6 +64,49 @@ export default function Navbar({ cart, onNavigate, currentPage }: NavbarProps) {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
+            {/* User Auth */}
+            {isAuthenticated && user ? (
+              <div className="relative group hidden md:block">
+                <button className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+                  {user.user_metadata?.avatar_url ? (
+                    <img
+                      src={user.user_metadata.avatar_url}
+                      alt={user.user_metadata?.name || 'User'}
+                      className="w-8 h-8 rounded-full border-2 border-amber-400"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-sm font-bold text-amber-700">
+                      {(user.user_metadata?.name || user.email || 'U')[0].toUpperCase()}
+                    </div>
+                  )}
+                  <span className="text-sm text-gray-700 font-medium max-w-24 truncate">
+                    {user.user_metadata?.name || user.email?.split('@')[0]}
+                  </span>
+                </button>
+                {/* Dropdown */}
+                <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 hidden group-hover:block z-50">
+                  <div className="px-4 py-2 border-b border-gray-100">
+                    <div className="font-semibold text-gray-800 text-sm truncate">
+                      {user.user_metadata?.name || 'User'}
+                    </div>
+                    <div className="text-xs text-gray-500 truncate">{user.email}</div>
+                  </div>
+                  <button
+                    onClick={async () => { await signOut(); }}
+                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    🚪 Sign Out
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => onNavigate('auth')}
+                className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors"
+              >
+                👤 Sign In
+              </button>
+            )}
             {/* Admin */}
             <button
               onClick={() => onNavigate('admin')}
@@ -141,6 +186,17 @@ export default function Navbar({ cart, onNavigate, currentPage }: NavbarProps) {
                 </svg>
               </button>
             </div>
+            {isAuthenticated ? (
+              <>
+                <div className="px-3 py-2 border-t border-gray-100 mt-2 pt-2">
+                  <div className="text-xs text-gray-500 mb-1">Signed in as:</div>
+                  <div className="text-sm font-medium text-gray-800 truncate">{user?.email}</div>
+                </div>
+                <button onClick={async () => { await signOut(); setMenuOpen(false); }} className="block w-full text-left px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50 font-medium">🚪 Sign Out</button>
+              </>
+            ) : (
+              <button onClick={() => { onNavigate('auth'); setMenuOpen(false); }} className="block w-full text-left px-3 py-2 rounded-lg text-sm text-amber-600 hover:bg-amber-50 font-medium">👤 Sign In with Google</button>
+            )}
             <button onClick={() => { onNavigate('admin'); setMenuOpen(false); }} className="block w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100">⚙️ Admin Panel</button>
             <button onClick={() => { onNavigate('shop'); setMenuOpen(false); }} className="block w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100">🛍️ Shop All Perfumes</button>
             <button onClick={() => { onNavigate('viability'); setMenuOpen(false); }} className="block w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100">📊 Business Viability Report</button>

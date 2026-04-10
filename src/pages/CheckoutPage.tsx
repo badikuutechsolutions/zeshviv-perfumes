@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { fetchProducts } from '../services/products';
 import { Product, CartItem } from '../types';
+import type { User } from '@supabase/supabase-js';
+import { useAuth } from '../contexts/AuthContext';
 
 interface CheckoutPageProps {
   cart: CartItem[];
@@ -18,6 +20,7 @@ interface CheckoutPageProps {
   }) => void;
   onNavigate: (page: string) => void;
   isLoading: boolean;
+  user: User;
 }
 
 const deliveryZones = [
@@ -29,7 +32,7 @@ const deliveryZones = [
   { name: 'Diani & Ukunda', fee: 400, threshold: 99999, time: 'Next day', label: 'KES 400' },
 ];
 
-export default function CheckoutPage({ cart, onPlaceOrder, onNavigate, isLoading }: CheckoutPageProps) {
+export default function CheckoutPage({ cart, onPlaceOrder, onNavigate, isLoading, user }: CheckoutPageProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({
@@ -39,6 +42,7 @@ export default function CheckoutPage({ cart, onPlaceOrder, onNavigate, isLoading
     deliveryZone: deliveryZones[0].name,
     paymentMethod: 'mpesa' as 'mpesa' | 'cash',
     mpesaNumber: '',
+    email: user?.email || '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 

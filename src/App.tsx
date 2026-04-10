@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from './contexts/AuthContext';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import ShopPage from './pages/ShopPage';
@@ -8,6 +9,7 @@ import CheckoutPage from './pages/CheckoutPage';
 import OrderSuccessPage from './pages/OrderSuccessPage';
 import ViabilityPage from './pages/ViabilityPage';
 import AdminPage from './pages/AdminPage';
+import AuthPage from './pages/AuthPage';
 import { supabase } from './lib/supabase';
 import { CartItem, Page } from './types';
 
@@ -25,6 +27,7 @@ type OrderData = {
 };
 
 export default function App() {
+  const { user, loading: authLoading } = useAuth();
   const [page, setPage] = useState<Page>('home');
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
   const [cart, setCart] = useState<CartItem[]>(() => {
@@ -38,12 +41,31 @@ export default function App() {
   const [lastOrderId, setLastOrderId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Handle redirect after Google login
+  useEffect(() => {
+    if (user) {
+      const redirectTarget = sessionStorage.getItem('redirectAfterLogin');
+      if (redirectTarget) {
+        sessionStorage.removeItem('redirectAfterLogin');
+        setPage(redirectTarget as Page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  }, [user]);
+
   // Persist cart to localStorage
   useEffect(() => {
     localStorage.setItem('zeshviv-cart', JSON.stringify(cart));
   }, [cart]);
 
   const handleNavigate = (targetPage: string, productId?: number) => {
+    // If trying to access checkout without being logged in, redirect to auth
+    if (targetPage === 'checkout' && !user) {
+      setPage('auth');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     if (targetPage === 'product' && productId) {
       setSelectedProductId(productId);
     }
@@ -69,17 +91,16 @@ export default function App() {
     }
   };
 
-  const handleClearCart = () => {
-    setCart([]);
-  };
-
   const handlePlaceOrder = async (orderData: OrderData) => {
+    if (!user) {
+      handleNavigate('auth');
+      return;
+    }
+
     setIsLoading(true);
     try {
-      // Generate order ID
       const orderId = `ZV-${Date.now().toString().slice(-6)}-${Math.floor(Math.random() * 1000)}`;
 
-      // Insert order into Supabase
       const { error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -94,11 +115,12 @@ export default function App() {
           delivery_fee: orderData.deliveryFee,
           total: orderData.total,
           status: 'pending',
+          user_id: user.id,
+          email: user.email,
         });
 
       if (orderError) throw orderError;
 
-      // Insert order items
       const orderItems = orderData.items.map(item => ({
         order_id: orderId,
         product_id: item.productId,
@@ -112,13 +134,13 @@ export default function App() {
 
       if (itemsError) throw itemsError;
 
-      // Upsert customer
       await supabase
         .from('customers')
         .upsert({
           name: orderData.customerName,
           phone: orderData.phone,
           location: orderData.location,
+          email: user.email,
         }, { onConflict: 'phone' });
 
       setLastOrderId(orderId);
@@ -135,7 +157,7 @@ export default function App() {
     }
   };
 
-  const showNav = page !== 'order-success' && page !== 'admin';
+  const showNav = page !== 'order-success' && page !== 'admin' && page !== 'auth';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -144,6 +166,13 @@ export default function App() {
           cart={cart}
           onNavigate={handleNavigate}
           currentPage={page}
+        />
+      )}
+
+      {page === 'auth' && (
+        <AuthPage
+          onNavigate={handleNavigate}
+          redirectAfterLogin="checkout"
         />
       )}
 
@@ -180,12 +209,13 @@ export default function App() {
         />
       )}
 
-      {page === 'checkout' && (
+      {page === 'checkout' && user && (
         <CheckoutPage
           cart={cart}
           onPlaceOrder={handlePlaceOrder}
           onNavigate={handleNavigate}
           isLoading={isLoading}
+          user={user}
         />
       )}
 

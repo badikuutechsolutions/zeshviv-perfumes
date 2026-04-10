@@ -40,6 +40,8 @@ export interface Database {
           delivery_fee: number;
           total: number;
           status: 'pending' | 'confirmed' | 'delivered' | 'cancelled';
+          user_id: string | null;
+          email: string | null;
           created_at: string;
         };
         Insert: Omit<Database['public']['Tables']['orders']['Row'], 'created_at'>;
@@ -63,6 +65,7 @@ export interface Database {
           name: string;
           phone: string;
           location: string;
+          email: string | null;
           order_count: number;
           total_spent: number;
           created_at: string;
