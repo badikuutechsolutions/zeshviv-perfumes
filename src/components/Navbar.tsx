@@ -1,0 +1,164 @@
+import { useState } from 'react';
+import { CartItem } from '../types';
+
+interface NavbarProps {
+  cart: CartItem[];
+  onNavigate: (page: string, productId?: number) => void;
+  currentPage: string;
+}
+
+export default function Navbar({ cart, onNavigate, currentPage }: NavbarProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  return (
+    <nav className="bg-white shadow-md sticky top-0 z-50">
+      {/* Top promo bar */}
+      <div className="bg-gradient-to-r from-amber-600 to-orange-500 text-white text-center py-1.5 text-xs font-medium tracking-wide">
+        🚀 FREE delivery within Mombasa CBD for orders above KES 3,000 &nbsp;|&nbsp; 📞 Call/WhatsApp: 0712 345 678
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 py-3">
+        <div className="flex items-center justify-between gap-4">
+          {/* Logo */}
+          <button
+            onClick={() => onNavigate('home')}
+            className="flex items-center gap-2 flex-shrink-0"
+          >
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-xl shadow">
+              💎
+            </div>
+            <div>
+              <div className="font-black text-lg leading-tight text-gray-900">Zesh<span className="text-amber-600">Viv</span></div>
+              <div className="text-[10px] text-gray-400 leading-tight font-medium">Premium Perfumes</div>
+            </div>
+          </button>
+
+          {/* Search bar */}
+          <div className="flex-1 max-w-xl hidden sm:flex">
+            <div className="flex w-full border-2 border-amber-500 rounded-lg overflow-hidden">
+              <input
+                type="text"
+                placeholder="Search perfumes, brands..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') onNavigate('shop');
+                }}
+                className="flex-1 px-4 py-2 text-sm outline-none text-gray-700"
+              />
+              <button
+                onClick={() => onNavigate('shop')}
+                className="bg-amber-500 hover:bg-amber-600 text-white px-4 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2">
+            {/* Viability Report */}
+            <button
+              onClick={() => onNavigate('viability')}
+              className={`hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                currentPage === 'viability'
+                  ? 'bg-amber-100 text-amber-700'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              📊 Viability
+            </button>
+
+            {/* Shop */}
+            <button
+              onClick={() => onNavigate('shop')}
+              className={`hidden md:flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                currentPage === 'shop'
+                  ? 'bg-amber-100 text-amber-700'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              🛍️ Shop
+            </button>
+
+            {/* Cart */}
+            <button
+              onClick={() => onNavigate('cart')}
+              className="relative flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <span className="hidden sm:inline">Cart</span>
+              {totalItems > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                  {totalItems}
+                </span>
+              )}
+            </button>
+
+            {/* Mobile menu */}
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={menuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile menu */}
+        {menuOpen && (
+          <div className="md:hidden mt-3 border-t pt-3 space-y-2">
+            <div className="flex border-2 border-amber-500 rounded-lg overflow-hidden mb-3">
+              <input
+                type="text"
+                placeholder="Search perfumes..."
+                className="flex-1 px-3 py-2 text-sm outline-none"
+              />
+              <button className="bg-amber-500 text-white px-3">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+            </div>
+            <button onClick={() => { onNavigate('shop'); setMenuOpen(false); }} className="block w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100">🛍️ Shop All Perfumes</button>
+            <button onClick={() => { onNavigate('viability'); setMenuOpen(false); }} className="block w-full text-left px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100">📊 Business Viability Report</button>
+          </div>
+        )}
+      </div>
+
+      {/* Category Nav */}
+      <div className="border-t bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex gap-1 overflow-x-auto py-2 scrollbar-hide">
+            {[
+              { label: '🔥 All', cat: 'all' },
+              { label: '👨 Men', cat: 'men' },
+              { label: '👩 Women', cat: 'women' },
+              { label: '⚡ Unisex', cat: 'unisex' },
+              { label: '🔶 Oud', cat: 'oud' },
+              { label: '💰 Under KES 2000', cat: 'budget' },
+              { label: '👑 Luxury', cat: 'luxury' },
+            ].map(({ label, cat }) => (
+              <button
+                key={cat}
+                onClick={() => onNavigate('shop')}
+                className="whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-medium bg-white border border-gray-200 hover:border-amber-400 hover:text-amber-600 transition-colors text-gray-600"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+}
