@@ -923,7 +923,66 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
               </div>
 
               {/* Form body */}
-              <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+              <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+                {/* Product Image Upload - Prominent Full Width */}
+                <div className="bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 p-5">
+                  <label className="block text-sm font-bold text-gray-700 mb-3 text-center">📸 Product Image</label>
+                  <div className="flex items-center justify-center gap-6">
+                    {/* Preview */}
+                    <div className="relative">
+                      {imagePreview || currentImageUrl ? (
+                        <div className="w-36 h-36 rounded-xl border-2 border-amber-400 overflow-hidden image-preview bg-white shadow-md">
+                          <img
+                            src={imagePreview || currentImageUrl}
+                            alt="Product"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-36 h-36 rounded-xl border-2 border-dashed border-gray-300 bg-white flex items-center justify-center">
+                          <div className="text-center">
+                            <div className="text-4xl text-gray-300 mb-1">📷</div>
+                            <div className="text-xs text-gray-400 font-medium">No image uploaded</div>
+                          </div>
+                        </div>
+                      )}
+                      {imageUploading && (
+                        <div className="absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center">
+                          <div className="animate-spin text-white text-xl">⏳</div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Upload controls */}
+                    <div className="flex flex-col gap-2">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageSelect}
+                        className="hidden"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="bg-amber-500 hover:bg-amber-400 text-white text-sm font-bold px-5 py-2.5 rounded-lg transition-colors shadow-sm"
+                      >
+                        📁 Choose Image
+                      </button>
+                      {(imagePreview || currentImageUrl) && (
+                        <button
+                          type="button"
+                          onClick={resetImageState}
+                          className="text-xs text-red-500 hover:text-red-700 font-medium text-center"
+                        >
+                          ✕ Remove image
+                        </button>
+                      )}
+                      <p className="text-[10px] text-gray-400 text-center max-w-32">PNG, JPG, WebP up to 5MB</p>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Basic info */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="col-span-2">
@@ -955,65 +1014,6 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
                       placeholder="🔶"
                       className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-amber-400"
                     />
-                  </div>
-                </div>
-
-                {/* Product Image Upload */}
-                <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-2">Product Image</label>
-                  <div className="flex items-start gap-4">
-                    {/* Preview */}
-                    <div className="relative">
-                      {imagePreview || currentImageUrl ? (
-                        <div className="w-32 h-32 rounded-xl border-2 border-amber-200 overflow-hidden image-preview bg-gray-50 flex items-center justify-center">
-                          <img
-                            src={imagePreview || currentImageUrl}
-                            alt="Product"
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-32 h-32 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center">
-                          <div className="text-center">
-                            <div className="text-3xl text-gray-300">📷</div>
-                            <div className="text-[10px] text-gray-400 mt-1">No image</div>
-                          </div>
-                        </div>
-                      )}
-                      {imageUploading && (
-                        <div className="absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center">
-                          <div className="animate-spin text-white text-lg">⏳</div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Upload controls */}
-                    <div className="flex-1">
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageSelect}
-                        className="hidden"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium px-4 py-2 rounded-lg transition-colors mb-2"
-                      >
-                        📁 Choose Image
-                      </button>
-                      <p className="text-[10px] text-gray-400">PNG, JPG, WebP up to 5MB</p>
-                      {(imagePreview || currentImageUrl) && (
-                        <button
-                          type="button"
-                          onClick={resetImageState}
-                          className="text-[10px] text-red-500 hover:text-red-700 mt-1 block"
-                        >
-                          ✕ Remove image
-                        </button>
-                      )}
-                    </div>
                   </div>
                 </div>
 
