@@ -5,6 +5,11 @@ import { Product, CartItem } from '../types';
 import type { User } from '@supabase/supabase-js';
 import { useAuth } from '../contexts/AuthContext';
 
+function getAbbreviation(name: string): string {
+  const words = name.trim().split(/\s+/).slice(0, 2);
+  return words.map(w => w[0]?.toUpperCase() || '').join('');
+}
+
 interface CheckoutPageProps {
   cart: CartItem[];
   onPlaceOrder: (orderData: {
@@ -312,8 +317,12 @@ export default function CheckoutPage({ cart, onPlaceOrder, onNavigate, isLoading
               <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
                 {cartProducts.map(({ item, product }) => (
                   <div key={product.id} className="flex gap-3 text-sm">
-                    <div className="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center shrink-0">
-                      <span className="text-xl">{product.emoji}</span>
+                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
+                      {product.imageUrl ? (
+                        <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-[10px] font-black text-amber-700/40">{getAbbreviation(product.name)}</span>
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold text-gray-800 truncate">{product.name}</div>

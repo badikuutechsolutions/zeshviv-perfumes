@@ -9,6 +9,11 @@ interface CartPageProps {
   onNavigate: (page: string) => void;
 }
 
+function getAbbreviation(name: string): string {
+  const words = name.trim().split(/\s+/).slice(0, 2);
+  return words.map(w => w[0]?.toUpperCase() || '').join('');
+}
+
 export default function CartPage({ cart, onUpdateCart, onNavigate }: CartPageProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [freeThreshold, setFreeThreshold] = useState(3000);
@@ -86,10 +91,16 @@ export default function CartPage({ cart, onUpdateCart, onNavigate }: CartPagePro
               <div key={product.id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex gap-4">
                 {/* Product icon */}
                 <div
-                  className="w-20 h-20 bg-linear-to-br from-amber-50 to-orange-50 rounded-xl flex items-center justify-center shrink-0 cursor-pointer"
+                  className="w-20 h-20 rounded-xl flex items-center justify-center shrink-0 cursor-pointer overflow-hidden bg-gray-100"
                   onClick={() => onNavigate('product', product.id)}
                 >
-                  <span className="text-4xl">{product.emoji}</span>
+                  {product.imageUrl ? (
+                    <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100">
+                      <span className="text-lg font-black text-amber-700/40">{getAbbreviation(product.name)}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Details */}

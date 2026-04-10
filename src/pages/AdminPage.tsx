@@ -5,6 +5,11 @@ import { Product } from '../types';
 import SettingsPage from './SettingsPage';
 import AdminManagementPage from './AdminManagementPage';
 
+function getAbbreviation(name: string): string {
+  const words = name.trim().split(/\s+/).slice(0, 2);
+  return words.map(w => w[0]?.toUpperCase() || '').join('');
+}
+
 // Admin password - change this to your own
 const ADMIN_PASSWORD = 'zeshviv2025';
 
@@ -662,7 +667,15 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
                     <tbody className="divide-y divide-gray-50">
                       {products.map(p => (
                         <tr key={p.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="p-3 text-2xl w-12 text-center">{p.emoji}</td>
+                          <td className="p-3 w-12 text-center">
+                            {p.imageUrl ? (
+                              <img src={p.imageUrl} alt={p.name} className="w-8 h-8 rounded-lg object-cover mx-auto" />
+                            ) : (
+                              <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center mx-auto">
+                                <span className="text-xs font-black text-amber-700/50">{getAbbreviation(p.name)}</span>
+                              </div>
+                            )}
+                          </td>
                           <td className="p-3">
                             <div className="font-semibold text-gray-900">{p.name}</div>
                             <div className="text-xs text-gray-400">{p.size} · ⭐ {p.rating} ({p.reviews})</div>

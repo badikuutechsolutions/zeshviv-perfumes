@@ -7,6 +7,12 @@ interface ProductCardProps {
   cartCount?: number;
 }
 
+// Get abbreviation from product name (first 2 letters of first two words)
+function getAbbreviation(name: string): string {
+  const words = name.trim().split(/\s+/).slice(0, 2);
+  return words.map(w => w[0]?.toUpperCase() || '').join('');
+}
+
 const badgeStyles: Record<string, string> = {
   bestseller: 'bg-amber-500 text-white',
   new: 'bg-green-500 text-white',
@@ -30,7 +36,7 @@ export default function ProductCard({ product, onAddToCart, onViewProduct, cartC
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group flex flex-col">
       {/* Product image area */}
       <div
-        className="relative cursor-pointer overflow-hidden h-52 bg-linear-to-br from-amber-50 to-orange-50"
+        className="relative cursor-pointer overflow-hidden h-52 bg-gray-100"
         onClick={() => onViewProduct(product.id)}
       >
         {product.imageUrl ? (
@@ -40,9 +46,11 @@ export default function ProductCard({ product, onAddToCart, onViewProduct, cartC
             className="w-full h-full object-cover product-image-zoom"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="text-7xl transform group-hover:scale-110 transition-transform duration-300">
-              {product.emoji}
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100">
+            <div className="text-center transform group-hover:scale-110 transition-transform duration-300">
+              <div className="text-3xl font-black text-amber-700/40 tracking-wider">
+                {getAbbreviation(product.name)}
+              </div>
             </div>
           </div>
         )}

@@ -21,6 +21,11 @@ import {
   Save,
 } from 'lucide-react';
 
+function getAbbreviation(name: string): string {
+  const words = name.trim().split(/\s+/).slice(0, 2);
+  return words.map(w => w[0]?.toUpperCase() || '').join('');
+}
+
 interface ProfilePageProps {
   onNavigate: (page: string) => void;
 }
@@ -508,8 +513,12 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
                       {order.items && order.items.length > 0 && (
                         <div className="flex items-center gap-2 mb-3">
                           {order.items.slice(0, 3).map((item, i) => (
-                            <div key={i} className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center text-lg">
-                              {item.product_emoji || '📦'}
+                            <div key={i} className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
+                              {item.product_name ? (
+                                <span className="text-[9px] font-black text-amber-700/40">{getAbbreviation(item.product_name)}</span>
+                              ) : (
+                                <span className="text-sm">📦</span>
+                              )}
                             </div>
                           ))}
                           {order.items.length > 3 && (
@@ -582,8 +591,12 @@ export default function ProfilePage({ onNavigate }: ProfilePageProps) {
               <div className="divide-y divide-gray-50">
                 {selectedOrder.items?.map((item, i) => (
                   <div key={i} className="flex items-center gap-3 p-4">
-                    <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-2xl shrink-0">
-                      {item.product_emoji || '📦'}
+                    <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
+                      {item.product_name ? (
+                        <span className="text-[10px] font-black text-amber-700/40">{getAbbreviation(item.product_name)}</span>
+                      ) : (
+                        <span className="text-lg">📦</span>
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium text-gray-900 truncate">{item.product_name}</div>

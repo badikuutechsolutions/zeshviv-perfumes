@@ -12,6 +12,11 @@ interface ProductPageProps {
 
 type TabType = 'overview' | 'specs' | 'reviews' | 'shipping';
 
+function getAbbreviation(name: string): string {
+  const words = name.trim().split(/\s+/).slice(0, 2);
+  return words.map(w => w[0]?.toUpperCase() || '').join('');
+}
+
 export default function ProductPage({ productId, cart, onAddToCart, onNavigate }: ProductPageProps) {
   const [product, setProduct] = useState<ProductType | null>(null);
   const [related, setRelated] = useState<ProductType[]>([]);
@@ -92,7 +97,7 @@ export default function ProductPage({ productId, cart, onAddToCart, onNavigate }
           <div className="grid md:grid-cols-2 gap-8">
             {/* Image Gallery */}
             <div>
-              <div className="relative bg-gray-50 rounded-2xl overflow-hidden aspect-square flex items-center justify-center group">
+              <div className="relative bg-gray-100 rounded-2xl overflow-hidden aspect-square flex items-center justify-center group">
                 {product.imageUrl ? (
                   <img
                     src={product.imageUrl}
@@ -100,7 +105,13 @@ export default function ProductPage({ productId, cart, onAddToCart, onNavigate }
                     className="w-full h-full object-cover product-image-zoom"
                   />
                 ) : (
-                  <div className="text-9xl">{product.emoji}</div>
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100">
+                    <div className="text-center">
+                      <div className="text-6xl font-black text-amber-700/30 tracking-widest">
+                        {getAbbreviation(product.name)}
+                      </div>
+                    </div>
+                  </div>
                 )}
                 {product.badge && (
                   <div className={`absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg ${
