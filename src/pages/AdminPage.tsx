@@ -4,6 +4,7 @@ import { uploadImage } from '../services/cloudinary';
 import { Product } from '../types';
 import SettingsPage from './SettingsPage';
 import AdminManagementPage from './AdminManagementPage';
+import CreditSalesPage from './CreditSalesPage';
 
 function getAbbreviation(name: string): string {
   const words = name.trim().split(/\s+/).slice(0, 2);
@@ -14,7 +15,7 @@ function getAbbreviation(name: string): string {
 const ADMIN_PASSWORD = 'zeshviv2025';
 
 type ModalMode = 'list' | 'add' | 'edit';
-type TabMode = 'products' | 'orders' | 'settings' | 'admins';
+type TabMode = 'products' | 'orders' | 'settings' | 'admins' | 'credit';
 
 type OrderRecord = {
   id: string;
@@ -615,6 +616,15 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
               👥 Admins
               {activeTab === 'admins' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500" />}
             </button>
+            <button
+              onClick={() => setActiveTab('credit')}
+              className={`px-5 py-3.5 text-sm font-semibold transition-colors relative ${
+                activeTab === 'credit' ? 'text-amber-600' : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              💳 Credit Sales
+              {activeTab === 'credit' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500" />}
+            </button>
           </div>
         </div>
       </div>
@@ -922,6 +932,11 @@ export default function AdminPage({ onNavigate }: { onNavigate: (page: string) =
         {/* ===== ADMIN MANAGEMENT TAB ===== */}
         {activeTab === 'admins' && (
           <AdminManagementPage showToast={showToast} />
+        )}
+
+        {/* ===== CREDIT SALES TAB ===== */}
+        {activeTab === 'credit' && (
+          <CreditSalesPage showToast={showToast} />
         )}
 
         {/* ===== ADD/EDIT PRODUCT MODAL ===== */}

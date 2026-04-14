@@ -204,7 +204,7 @@ export default function AdminProfilePage({ onNavigate, showToast }: AdminProfile
                     type="tel"
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
-                    placeholder="e.g. 0712345678"
+                    placeholder="e.g. 0723424962"
                     className={`${inputClass} pl-10`}
                   />
                 </div>

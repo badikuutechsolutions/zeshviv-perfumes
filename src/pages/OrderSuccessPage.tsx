@@ -45,7 +45,7 @@ export default function OrderSuccessPage({ orderId, onNavigate }: OrderSuccessPa
         {/* Contact */}
         <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6">
           <p className="text-sm text-blue-700">
-            📞 Need help? Call or WhatsApp us at <strong>0712 345 678</strong><br />
+            📞 Need help? Call or <a href="https://wa.me/254723424962" target="_blank" rel="noopener noreferrer" className="underline font-bold">WhatsApp</a> us at <strong>0723424962</strong><br />
             We're available 8am – 9pm, 7 days a week.
           </p>
         </div>

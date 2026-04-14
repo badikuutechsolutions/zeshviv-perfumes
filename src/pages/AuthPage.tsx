@@ -74,7 +74,7 @@ export default function AuthPage({ onNavigate, redirectAfterLogin = 'checkout' }
       return;
     }
     if (!validatePhone(signUpForm.phone)) {
-      setError('Enter a valid Kenyan phone number (e.g. 0712345678)');
+      setError('Enter a valid Kenyan phone number (e.g. 0723424962)');
       return;
     }
     if (!validatePassword(signUpForm.password)) {
@@ -346,7 +346,7 @@ export default function AuthPage({ onNavigate, redirectAfterLogin = 'checkout' }
                   </label>
                   <input
                     type="tel"
-                    placeholder="e.g. 0712345678"
+                    placeholder="e.g. 0723424962"
                     value={signUpForm.phone}
                     onChange={e => setSignUpForm({ ...signUpForm, phone: e.target.value })}
                     className={inputClass('phone')}

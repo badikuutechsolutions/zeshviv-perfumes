@@ -153,7 +153,7 @@ export default function App() {
       console.log('Order placed successfully:', { orderId, ...orderData });
     } catch (error) {
       console.error('Error placing order:', error);
-      alert('Failed to place order. Please try again or contact us on WhatsApp: 0712 345 678');
+      alert('Failed to place order. Please try again or contact us on WhatsApp: https://wa.me/254723424962');
     } finally {
       setIsLoading(false);
     }

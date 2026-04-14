@@ -439,7 +439,7 @@ export default function ProductPage({ productId, cart, onAddToCart, onNavigate }
                 <div className="space-y-3 text-sm text-gray-600">
                   <p>• <strong>7-day exchange policy:</strong> Not satisfied with your scent? Exchange for another fragrance within 7 days.</p>
                   <p>• Product must be unused and in original packaging.</p>
-                  <p>• Contact us on WhatsApp (0712 345 678) to initiate an exchange.</p>
+                  <p>• Contact us on <a href="https://wa.me/254723424962" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:underline font-medium">WhatsApp</a> (0723424962) to initiate an exchange.</p>
                   <p>• Delivery fees for exchanges are borne by the customer.</p>
                 </div>
               </div>

@@ -10,7 +10,11 @@
       "Bash(git commit *)",
       "Bash(git push *)",
       "Bash(git config *)",
-      "Bash(findstr *)"
+      "Bash(findstr *)",
+      "Bash(node *)",
+      "Read(c:\\Users\\pc\\Downloads/**)",
+      "Bash(ren *)",
+      "Bash(del *)"
     ]
   },
   "$version": 3

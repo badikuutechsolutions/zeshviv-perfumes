@@ -307,9 +307,9 @@ export default function HomePage({ cart, onAddToCart, onNavigate }: HomePageProp
             <div>
               <h4 className="text-white font-bold mb-3 text-sm">Contact Us</h4>
               <ul className="space-y-1.5 text-sm">
-                <li>📞 0712 345 678</li>
-                <li>📧 hello@zeshviv.co.ke</li>
-                <li>📍 Mombasa, Kenya</li>
+                <li>📞 <a href="https://wa.me/254723424962" target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition-colors">0723424962</a></li>
+                <li>📧 <a href="mailto:jamilodipo@gmail.com" className="hover:text-amber-400 transition-colors">jamilodipo@gmail.com</a></li>
+                <li>📍 Bilima Ground, Bakarani, Kisauni, Mombasa</li>
                 <li>⏰ Open 8am – 9pm daily</li>
               </ul>
             </div>

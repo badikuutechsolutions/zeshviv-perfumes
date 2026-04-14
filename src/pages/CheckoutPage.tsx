@@ -33,7 +33,7 @@ export default function CheckoutPage({ cart, onPlaceOrder, onNavigate, isLoading
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [deliveryZones, setDeliveryZones] = useState<DeliveryZone[]>([]);
-  const [pochiNumber, setPochiNumber] = useState('0712 345 678');
+  const [pochiNumber, setPochiNumber] = useState('0723424962');
   const [freeThreshold, setFreeThreshold] = useState(3000);
   const [form, setForm] = useState({
     customerName: '',
@@ -162,7 +162,7 @@ export default function CheckoutPage({ cart, onPlaceOrder, onNavigate, isLoading
                   <label className="block text-xs font-semibold text-gray-600 mb-1">Phone Number (WhatsApp) *</label>
                   <input
                     type="tel"
-                    placeholder="e.g. 0712 345 678"
+                    placeholder="e.g. 0723424962"
                     value={form.phone}
                     onChange={e => setForm({ ...form, phone: e.target.value })}
                     className={inputClass('phone')}
@@ -269,7 +269,7 @@ export default function CheckoutPage({ cart, onPlaceOrder, onNavigate, isLoading
                     <label className="block text-xs font-semibold text-gray-600 mb-1">Your M-Pesa Number *</label>
                     <input
                       type="tel"
-                      placeholder="e.g. 0712 345 678"
+                      placeholder="e.g. 0723424962"
                       value={form.mpesaNumber}
                       onChange={e => setForm({ ...form, mpesaNumber: e.target.value })}
                       className={inputClass('mpesaNumber')}

@@ -19,7 +19,7 @@ export default function Navbar({ cart, onNavigate, currentPage }: NavbarProps) {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       {/* Top promo bar */}
       <div className="bg-linear-to-r from-amber-600 to-orange-500 text-white text-center py-1.5 text-xs font-medium tracking-wide">
-        🚀 FREE delivery within Mombasa CBD for orders above KES 3,000 &nbsp;|&nbsp; 📞 Call/WhatsApp: 0712 345 678
+        🚀 FREE delivery within Mombasa CBD for orders above KES 3,000 &nbsp;|&nbsp; 📞 Call/WhatsApp: <a href="https://wa.me/254723424962" target="_blank" rel="noopener noreferrer" className="underline hover:text-amber-200 transition-colors">0723424962</a>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-3">
